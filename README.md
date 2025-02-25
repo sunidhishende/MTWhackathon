@@ -3,6 +3,8 @@
 
 [Demo Link](https://drive.google.com/file/d/1TPJkWm0iYj7VUde60d68pPEk_cy8kGVY/view?usp=sharing)
 
+Setup -> This file- [File Link](https://drive.google.com/file/d/1ApEKrWtcxhPYZomACIvNiB2MKCSrixSL/view?usp=drive_link) should be placed in Backend/src/objects
+
 Below is a summary of our end-to-end fraud detection pipeline development:
 
 ---
