@@ -1,10 +1,26 @@
 from fastapi import FastAPI, Request
 from contextlib import asynccontextmanager
+from src.config.db import connect_to_neo4j, disconnect_from_neo4j
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
 
-app = FastAPI(title="NPCI Hackathon")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    try:
+        await connect_to_neo4j()
+        yield
+    finally:
+        await disconnect_from_neo4j()
+
+
+app = FastAPI(title="NPCI Hackathon", lifespan=lifespan)
+
+
+@app.get("/")
+async def read_root(request: Request):
+    return {"message": "Hello World"}
+
 
 app.add_middleware(
     CORSMiddleware,
