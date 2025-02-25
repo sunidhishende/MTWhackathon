@@ -143,10 +143,13 @@ async def predict_fraud(transaction: TransactionRequest):
         # Define a threshold (adjustable)
         threshold = 0.4
         fraud_prediction = int(fraud_prob >= threshold)
+        
+        print('prediction', type(fraud_prediction))
+        print('confidence', type(fraud_prob))
 
         return {
             "fraud_prediction": fraud_prediction,
-            "confidence_score": round(fraud_prob, 4)
+            "confidence_score": round(float(fraud_prob), 4)
         }
 
     except Exception as e:
