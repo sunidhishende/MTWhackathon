@@ -9,6 +9,8 @@ from src.config.db import (
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
+from src.api.detection import detection_router
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -27,6 +29,8 @@ app = FastAPI(title="NPCI Hackathon", lifespan=lifespan)
 async def read_root(request: Request):
     return {"message": "Hello World"}
 
+
+app.include_router(detection_router, prefix="/api", tags=["detection"])
 
 app.add_middleware(
     CORSMiddleware,
