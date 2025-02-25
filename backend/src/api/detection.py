@@ -5,6 +5,7 @@ from src.config.db import driver
 from httpx import AsyncClient
 from fastapi.responses import JSONResponse
 from starlette import status
+from fraud_api import predict_fraud
 
 
 class DetectionRequest(BaseModel):
@@ -32,24 +33,19 @@ async def inference(request: Request, detection_request: DetectionRequest):
     Perform inference on the provided transaction ID.
     """
     try:
-        # send request to model api
-        async with AsyncClient() as client:
-            # response = await client.post(
-            #     "http://model:8000/inference",
-            #     json=detection_request.dict(),
-            # )
+        # send request to model
+        res = await predict_fraud(detection_request.dict())
 
-            return JSONResponse(
-                content={
-                    "status": "success",
-                    "data": {
-                        "is_fraud": True,
-                        "confidence": 0.99,
-                    },
+        return JSONResponse(
+            content={
+                "status": "success",
+                "data": {
+                    "is_fraud": bool(res.get("fraud_prediction", 0)),
+                    "confidence": res.get("confidence_score", 0),
                 },
-                status_code=status.HTTP_200_OK,
-            )
-
+            },
+            status_code=status.HTTP_200_OK,
+        )
     except Exception as e:
         return JSONResponse(
             content={"error": str(e), "status": "error"},
