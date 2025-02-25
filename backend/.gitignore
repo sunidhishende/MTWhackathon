@@ -9,3 +9,4 @@ completed_ips
 data_usage_requests/
 .idea
 .tool-versions
+objects/
