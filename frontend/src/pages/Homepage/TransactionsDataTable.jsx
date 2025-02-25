@@ -16,7 +16,7 @@ const TransactionsDataTable = () => {
       setError(null);
       try {
         const response = await fetch(
-          "http://192.168.50.171:8001/api/transaction/all",
+          "http://localhost:8001/api/transaction/all",
           {
             method: "POST",
           }

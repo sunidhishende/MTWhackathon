@@ -16,7 +16,7 @@ const User = () => {
       setError(null);
       try {
         const response = await fetch(
-          "http://192.168.50.171:8001/api/transaction/user",
+          "http://localhost:8001/api/transaction/user",
           {
             method: "POST",
             headers: {
