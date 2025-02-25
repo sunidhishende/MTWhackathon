@@ -2,15 +2,12 @@ import { Anchor, Center, Text } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DataTable } from "mantine-datatable";
-
-const PAGE_SIZE = 10;
+import { v4 as uuidV4 } from "uuid";
 
 const TransactionsDataTable = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [page, setPage] = useState(1);
-  const [totalRecords, setTotalRecords] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -19,14 +16,17 @@ const TransactionsDataTable = () => {
       setError(null);
       try {
         const response = await fetch(
-          `https://reqres.in/api/users?page=${page}&per_page=${PAGE_SIZE}`
+          "http://192.168.50.171:8001/api/transaction/all",
+          {
+            method: "POST",
+          }
         );
         if (!response.ok) {
           throw new Error("Failed to fetch data");
         }
         const json = await response.json();
-        setData(json.data);
-        setTotalRecords(json.total);
+        const rData = json?.map((d) => ({ id: uuidV4(), ...d }));
+        setData(rData);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -35,7 +35,7 @@ const TransactionsDataTable = () => {
     };
 
     fetchData();
-  }, [page]);
+  }, []);
 
   if (error)
     return (
@@ -54,28 +54,38 @@ const TransactionsDataTable = () => {
           hidden: true,
         },
         {
-          accessor: "first_name",
-          title: "First Name",
+          accessor: "user",
+          title: "User",
           render: (record) => {
             return (
               <Anchor
                 onClick={() => {
-                  navigate(`/transaction/${record?.id}`);
+                  navigate(`/user/${record?.user}`);
                 }}
               >
-                {record?.first_name ?? "-"}
+                {record?.user ?? "-"}
               </Anchor>
             );
           },
         },
-        { accessor: "last_name", title: "Last Name" },
-        { accessor: "email", title: "Email" },
+        {
+          accessor: "card",
+          title: "Card",
+        },
+        {
+          accessor: "date",
+          title: "Date / Time",
+          render: (record) => {
+            return (
+              <Text>
+                {record?.transaction?.day}/{record?.transaction?.month}/
+                {record?.transaction?.year} - {record?.transaction?.time}
+              </Text>
+            );
+          },
+        },
       ]}
       records={data}
-      totalRecords={totalRecords}
-      recordsPerPage={PAGE_SIZE}
-      page={page}
-      onPageChange={setPage}
       highlightOnHover
       striped
       withTableBorder
