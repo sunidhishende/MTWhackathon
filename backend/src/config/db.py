@@ -1,14 +1,18 @@
-from neo4j import GraphDatabase
-import os
+from neo4j import AsyncGraphDatabase
+import asyncpg
 
-uri = os.getenv("NEO4J_URI")
-username = os.getenv("NEO4J_USER")
-password = os.getenv("NEO4J_PASSWORD")
+# uri = os.getenv("NEO4J_URI")
+# username = os.getenv("NEO4J_USER")
+# password = os.getenv("NEO4J_PASSWORD")
 
-driver = GraphDatabase.driver(uri, auth=(username, password))
+# print(uri, username, password)
+
+driver = AsyncGraphDatabase.driver(
+    "neo4j://192.168.51.53:7687", auth=("neo4j", "password")
+)
 
 
-def connect_to_neo4j():
+async def connect_to_neo4j():
     """
     Connect to the Neo4j database using the provided credentials.
 
@@ -22,9 +26,10 @@ def connect_to_neo4j():
     """
     try:
         # Optional: Test the connection with a simple query.
-        with driver.session() as session:
-            result = session.run("RETURN 1 AS test")
-            print("Connection test:", result.single()["test"])
+        async with driver.session() as session:
+            result = await session.run("RETURN 1 AS test")
+            result = await result.data()
+            print("Connection test:", result)
         print("Connected to Neo4j")
         return driver
     except Exception as e:
@@ -32,7 +37,7 @@ def connect_to_neo4j():
         return None
 
 
-def disconnect_from_neo4j():
+async def disconnect_from_neo4j():
     """
     Disconnect from the Neo4j database by closing the driver.
 
@@ -40,5 +45,28 @@ def disconnect_from_neo4j():
         driver: The Neo4j driver instance to close.
     """
     if driver:
-        driver.close()
+        await driver.close()
         print("Disconnected from Neo4j")
+
+
+async def connect_to_postgres():
+    pool = await asyncpg.create_pool(
+        user="your_user",
+        password="your_password",
+        database="your_database",
+        host="localhost",
+        port=5432,
+    )
+    print("Connected to PostgreSQL")
+    return pool
+
+
+async def disconnect_from_postgres(pool: asyncpg.pool.Pool):
+    """
+    Disconnect from PostgreSQL by closing the connection pool.
+
+    Args:
+        pool: The asyncpg connection pool to close.
+    """
+    await pool.close()
+    print("Disconnected from PostgreSQL")

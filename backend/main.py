@@ -1,17 +1,23 @@
 from fastapi import FastAPI, Request
 from contextlib import asynccontextmanager
-from src.config.db import connect_to_neo4j, disconnect_from_neo4j
+from src.config.db import (
+    connect_to_neo4j,
+    disconnect_from_neo4j,
+    connect_to_postgres,
+    disconnect_from_postgres,
+)
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    try:
-        await connect_to_neo4j()
-        yield
-    finally:
-        await disconnect_from_neo4j()
+    await connect_to_neo4j()
+    yield
+    await disconnect_from_neo4j()
+    # app.state.pool = await connect_to_postgres()
+    # yield
+    # await disconnect_from_postgres(app.state.pool)
 
 
 app = FastAPI(title="NPCI Hackathon", lifespan=lifespan)
