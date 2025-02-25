@@ -14,7 +14,7 @@ iso_forest = pkl.load(open('./models/iso_forest', 'rb'))
 xgb_model = pkl.load(open('./models/xgb_model', 'rb'))
 
 # Assume this is our transaction history database (for user-card lookup)
-transaction_data = pkl.load('./objects/transactions', 'rb')  # Load historical transactions here
+transaction_data = pkl.load(open('./objects/transactions', 'rb'))  # Load historical transactions here
 
 # FastAPI App Initialization
 app = FastAPI()
@@ -26,7 +26,7 @@ class TransactionRequest(BaseModel):
     mcc: int
     time_of_day: str  # Format: "HH:MM"
     city: int
-    chip_labeled: int
+    Use_chip_labeled: int
     amount: float
     has_error: int
     irs_reportable_labeled: int
@@ -34,11 +34,22 @@ class TransactionRequest(BaseModel):
     user_id: int
     card_id: int
     
+def convert_to_utc(*data):
+    
+    year, month, day, time_str = data
+    time_obj = datetime.strptime(time_str, "%H:%M").time()
+    
+    # Create full datetime object (assuming UTC)
+    dt_obj = datetime(year, month, day, time_obj.hour, time_obj.minute)
+    
+    # Convert to UTC timestamp string
+    return dt_obj.isoformat() + "Z"
 
-def convert_to_utc(year, month, day, time_of_day):
-    local_time = f"{year}-{month:02d}-{day:02d} {time_of_day}:00"
-    dt = datetime.strptime(local_time, "%Y-%m-%d %H:%M:%S")
-    return dt  # Assume UTC or apply timezone conversion if needed
+
+# def convert_to_utc(year, month, day, time_of_day):
+#     local_time = f"{year}-{month:02d}-{day:02d} {time_of_day}:00"
+#     dt = datetime.strptime(local_time, "%Y-%m-%d %H:%M:%S")
+#     return dt  # Assume UTC or apply timezone conversion if needed
 
 def get_past_transactions(user_id, card_id, current_time, window_size=20):
     user_card_transactions = transaction_data[
@@ -58,7 +69,7 @@ def generate_features(transaction_window):
         return None  # Not enough data
 
     # Convert to NumPy array for faster calculations
-    arr = transaction_window[["Amount", "MCC", "Minutes_Since_Midnight", "city_labeled", "chip_labeled"]].values
+    arr = transaction_window[['Month', 'Day', 'MCC', 'Minutes_Since_Midnight', 'city_labeled', 'Use_chip_labeled', 'Amount', 'has_error', 'irs_reportable_labeled', 'irs_description_labeled']].values
 
     # Compute features
     agg_mean = arr.mean(axis=0)
@@ -80,7 +91,11 @@ def generate_features(transaction_window):
     rolling_avg = np.mean(amounts)
 
     # Merchant & MCC diversity
-    unique_merchants = len(set(transaction_window["Merchant_ID"]))
+    try:
+        unique_merchants = len(set(transaction_window["Merchant_ID"]))
+    except:
+        unique_merchants = 0
+        
     unique_mcc_codes = len(set(transaction_window["MCC"]))
 
     # Combine all features
@@ -102,12 +117,17 @@ async def predict_fraud(transaction: TransactionRequest):
     try:
         # Convert timestamp to UTC
         current_time = convert_to_utc(transaction.year, transaction.month, transaction.day, transaction.time_of_day)
+        print(current_time)
 
         # Retrieve past transactions for the user-card pair
         transaction_window = get_past_transactions(transaction.user_id, transaction.card_id, current_time, window_size=20)
+        print(transaction_window)
 
         # Generate features
         features = generate_features(transaction_window)
+        print(features)
+        print(features.shape)
+        
         if features is None:
             raise HTTPException(status_code=400, detail="Not enough transaction history for prediction.")
 
