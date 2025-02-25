@@ -9,6 +9,7 @@ import {
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import TransactionGraph from "./TransactionGraph";
 
 const Transaction = () => {
   const { transactionId } = useParams();
@@ -63,6 +64,8 @@ const Transaction = () => {
             <Text>Email: {data.email}</Text>
           </Stack>
         )}
+        <Title order={3}>Transactions</Title>
+        <TransactionGraph />
       </Stack>
     </ScrollArea>
   );
