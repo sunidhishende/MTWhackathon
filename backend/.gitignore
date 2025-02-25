@@ -9,4 +9,5 @@ completed_ips
 data_usage_requests/
 .idea
 .tool-versions
+objects/
 card_transaction.v1.csv
