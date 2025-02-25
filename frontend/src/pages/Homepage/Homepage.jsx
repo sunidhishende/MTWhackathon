@@ -1,4 +1,5 @@
 import { Group, ScrollArea, Stack, Title } from "@mantine/core";
+import AddTransactionModal from "./AddTransaction";
 import TransactionsDataTable from "./TransactionsDataTable";
 
 const DataTableComponent = () => {
@@ -7,6 +8,7 @@ const DataTableComponent = () => {
       <Stack gap={20}>
         <Group justify="space-between">
           <Title order={2}>Dashboard</Title>
+          <AddTransactionModal />
         </Group>
         <TransactionsDataTable />
       </Stack>

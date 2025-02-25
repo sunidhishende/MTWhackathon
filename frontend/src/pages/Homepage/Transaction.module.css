@@ -1,0 +1,28 @@
+.graph-container {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-around;
+    height: 100%;
+}
+
+.search_box {
+    background-color: var(--mantine-color-body);
+}
+
+.pills_list {
+    overflow-y: scroll;
+    max-height: 40px;
+}
+
+.pills_list::-webkit-scrollbar {
+    width: 0.2rem;
+}
+
+.pills_list::-webkit-scrollbar-thumb {
+    background-color: var(--mantine-color-text);
+    border-radius: 1rem;
+}
+
+.pill {
+    background-color: var(--mantine-color-gray-filled);
+}
