@@ -1,25 +1,19 @@
 import "@mantine/core/styles.css";
+import "@mantine/core/styles.layer.css";
+import "mantine-datatable/styles.layer.css";
+import "./layout.css";
 
 import { MantineProvider } from "@mantine/core";
-import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
-import Homepage from "./pages/homepage";
+import { BrowserRouter as Router } from "react-router-dom";
+import Dashboard from "./pages/Dashboard";
 import { defaultTheme } from "./theme";
 
 export default function App() {
   return (
     <div className="App">
-      <MantineProvider defaultColorScheme="light" theme={defaultTheme}>
+      <MantineProvider defaultColorScheme="dark" theme={defaultTheme}>
         <Router>
-          <div>
-            <main>
-              <Routes>
-                <Route path="/" element={<Homepage />} />
-                {/* <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/analytics" element={<Analytics />} />
-            <Route path="/terminal" element={<Terminal />} /> */}
-              </Routes>
-            </main>
-          </div>
+          <Dashboard />
         </Router>
       </MantineProvider>
     </div>

@@ -10,6 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
 from src.api.detection import detection_router
+from src.api.transaction import transaction_router
 
 
 @asynccontextmanager
@@ -31,6 +32,7 @@ async def read_root(request: Request):
 
 
 app.include_router(detection_router, prefix="/api", tags=["detection"])
+app.include_router(transaction_router, prefix="/api", tags=["detection"])
 
 app.add_middleware(
     CORSMiddleware,

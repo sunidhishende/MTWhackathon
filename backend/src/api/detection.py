@@ -8,16 +8,19 @@ from starlette import status
 
 
 class DetectionRequest(BaseModel):
-    month: str
-    day: str
-    mcc: str
-    minutes_since_midnight: int
+    year: int
+    month: int
+    day: int
+    mcc: int
+    time_of_day: str
     city: str
-    user_chip: str
+    chip_labeled: int
     amount: str
-    has_error: Optional[str] = None
-    irs_reportable: Optional[str] = None
-    irs_description: Optional[str] = None
+    user_id: int
+    card_id: int
+    has_error: Optional[int] = None
+    irs_reportable_labeled: Optional[int] = None
+    irs_description_labeled: Optional[int] = None
 
 
 detection_router = APIRouter(prefix="/detection")
@@ -31,15 +34,18 @@ async def inference(request: Request, detection_request: DetectionRequest):
     try:
         # send request to model api
         async with AsyncClient() as client:
-            response = await client.post(
-                "http://model:8000/inference",
-                json=detection_request.dict(),
-            )
+            # response = await client.post(
+            #     "http://model:8000/inference",
+            #     json=detection_request.dict(),
+            # )
 
             return JSONResponse(
                 content={
                     "status": "success",
-                    "data": response.json(),
+                    "data": {
+                        "is_fraud": False,
+                        "confidence": 0.99,
+                    },
                 },
                 status_code=status.HTTP_200_OK,
             )

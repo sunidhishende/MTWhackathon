@@ -8,7 +8,7 @@ NEO4J_URI = "bolt://192.168.51.53:7687"  # Update with your Neo4j connection det
 NEO4J_USER = "neo4j"
 NEO4J_PASSWORD = "password"
 CSV_FILE = (
-    "/home/bulbasaur/Downloads/card_transaction.v1.csv"  # Path to your large CSV file
+    "MTWhackathon/backend/src/utils/card_transaction.v1.csv"  # Path to your large CSV file
 )
 BATCH_SIZE = 5000  # Number of rows per batch
 
@@ -60,14 +60,20 @@ def import_batch(session, batch_df):
     MERGE (t)-[:AT]->(m)
     """
 
-    # Convert the DataFrame to a list of dictionaries and clean column names
+    # Convert DataFrame to a list of dictionaries and clean column names
     batch_data = []
     for _, row in batch_df.iterrows():
         row_dict = {}
         for col in row.index:
-            # Remove spaces and special characters from column names for Neo4j compatibility
-            clean_col = "".join(c if c.isalnum() else "" for c in col)
-            row_dict[clean_col] = row[col]
+            clean_col = "".join(c if c.isalnum() else "" for c in col)  # Clean column names
+            value = row[col]
+
+            # Replace NaN values with "UNKNOWN"
+            if pd.isna(value):  
+                value = "UNKNOWN"
+
+            row_dict[clean_col] = value
+
         batch_data.append(row_dict)
 
     # Execute batch import
