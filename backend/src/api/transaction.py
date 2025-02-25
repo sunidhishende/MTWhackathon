@@ -57,4 +57,24 @@ async def user(req:UserRequest):
     except Exception as e:
         print(e)
 
+@transaction_router.post("/total")
+async def total():
+    try:
+        user_query = """
+            MATCH (u:User) RETURN count(u) AS count
+        """
+        transaction_query="MATCH (t:Transaction) RETURN count(t) AS count"
+        merchant_query="MATCH (m:Merchant) RETURN count(m) AS count"
 
+        driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
+
+        with driver.session() as session:
+            result = session.run(user_query)
+            transactions = [{"user": record["count"]} for record in result]
+            result1=session.run(transaction_query)
+            result2=session.run(merchant_query)
+            transactions1= [{"transaction": record["count"]} for record in result1]
+            transactions2 = [{"merchant": record["count"]} for record in result2]
+        return transactions,transactions1,transactions2
+    except Exception as e:
+        print(e)
