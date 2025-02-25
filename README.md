@@ -1,3 +1,8 @@
+
+### **Demo**-
+
+[Demo Link](https://drive.google.com/file/d/1TPJkWm0iYj7VUde60d68pPEk_cy8kGVY/view?usp=sharing)
+
 Below is a summary of our end-to-end fraud detection pipeline development:
 
 ---
@@ -98,6 +103,4 @@ We have also built a webapp to demonstrate how the data will be flagged when new
 
 ---
 
-### **Demo**-
 
-[Demo Link](https://drive.google.com/file/d/1TPJkWm0iYj7VUde60d68pPEk_cy8kGVY/view?usp=sharing)
