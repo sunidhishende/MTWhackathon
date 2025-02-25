@@ -1,13 +1,26 @@
-import { Button, Modal, Title, TextInput, Group } from "@mantine/core";
+import React from "react";
+import { Button, Modal, Title, TextInput, Group, Text, Box } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useForm } from "@mantine/form";
 import classes from "./Transaction.module.css";
 
 const AddTransactionModal = () => {
+  const [fraud, setFraud] = React.useState({
+    is_fraud: false,
+    confidence: 0,
+  });
   const [
     addTransactionModalOpen,
     { open: openAddTransactionModal, close: closeAddTransactionModal },
   ] = useDisclosure(false);
+
+  const closeModal = () => {
+    closeAddTransactionModal();
+    setFraud({
+      is_fraud: false,
+      confidence: 0,
+    });
+  }
 
   const form = useForm({
     initialValues: {
@@ -28,9 +41,43 @@ const AddTransactionModal = () => {
     },
   });
 
-  const handleSave = (values) => {
-    console.log("VALUES", values);
-    closeAddTransactionModal();
+  const handleSave = async (values) => {
+    const res = await fetch("http://localhost:8001/api/detection/inference", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(
+        {
+          "year": 2002,
+          "month": 1,
+          "day": 1,
+          "mcc": 5411,
+          "time_of_day": "6:30",
+          "city": 0,
+          "Use_chip_labeled": 1,
+          "amount": 250.75,
+          "has_error": 0,
+          "irs_reportable_labeled": 0,
+          "irs_description_labeled": 2,
+          "user_id": 0,
+          "card_id": 1,
+      }
+      ),
+    });
+
+    const res_obj = await res.json();
+    console.log(res_obj);
+    if (res_obj["status"] === "success") {
+      setFraud({
+        is_fraud: res_obj["data"]["is_fraud"],
+        confidence: res_obj["data"]["confidence"],
+      });
+    } else {
+      console.error("Error in API call");
+      // closeAddTransactionModal();
+    }
+
   };
 
   return (
@@ -39,7 +86,7 @@ const AddTransactionModal = () => {
       {addTransactionModalOpen && (
         <Modal
           opened={true}
-          onClose={closeAddTransactionModal}
+          onClose={closeModal}
           title={<Title order={5}>Add Transaction</Title>}
           centered
         >
@@ -84,6 +131,17 @@ const AddTransactionModal = () => {
             <Group position="right" mt="md">
               <Button type="submit">Submit</Button>
             </Group>
+            {/* Show if transaction is detected fraud */}
+            {fraud.is_fraud && (
+              <Box>
+                <Text size="lg" weight={700} color="red">
+                  Fraud Detected!
+                </Text>
+                <Text size="sm">
+                  Confidence: {fraud.confidence.toFixed(2) * 100}%
+                </Text>
+              </Box>
+            )}
           </form>
         </Modal>
       )}

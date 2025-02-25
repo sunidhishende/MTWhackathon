@@ -13,9 +13,9 @@ class DetectionRequest(BaseModel):
     day: int
     mcc: int
     time_of_day: str
-    city: str
-    chip_labeled: int
-    amount: str
+    city: int
+    Use_chip_labeled: int
+    amount: float
     user_id: int
     card_id: int
     has_error: Optional[int] = None
@@ -43,7 +43,7 @@ async def inference(request: Request, detection_request: DetectionRequest):
                 content={
                     "status": "success",
                     "data": {
-                        "is_fraud": False,
+                        "is_fraud": True,
                         "confidence": 0.99,
                     },
                 },
